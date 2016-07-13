@@ -6,6 +6,8 @@ library(SilverPopR)
 load_credentials("credentials_silverpop.json")
 authorize_api()
 
+list_available_events() # List all event types in SilverPop
+
 database_id <- "1234567890"
 event_date_start <- as.Date("2016-01-01")
 event_date_end <- as.Date("2016-06-30")

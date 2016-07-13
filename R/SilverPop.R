@@ -31,6 +31,11 @@ authorize_api <- function() {
   saveCache(access_token,key=list("access_token"))
 }
 
+list_available_events <- function() {
+  events = list("sent","suppressed","opens","clicks","optins","optouts","forwards","attachments","conversions","clickstreams","hard_bounces","soft_bounces","reply_abuse","reply_coa","reply_other","mail_blocks","mails_restrictions")
+  print(events)
+}
+
 # POST Request to API
 SPost <- function(body) {
   access_token <- loadCache(key=list("access_token"))
