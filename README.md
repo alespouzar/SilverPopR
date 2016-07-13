@@ -3,7 +3,7 @@
 ```R
 library(SilverPopR)
 
-load_credentials("/Etnetera/credentials_silverpop.json")
+load_credentials("credentials_silverpop.json")
 authorize_api()
 
 database_id <- "1234567890"
@@ -13,4 +13,15 @@ events <- list("opens","clicks","sent")
 csv_file <- RawRecipientDataExport(database_id,event_date_start,event_date_end,events)
 sp <- read.csv(csv_file, sep="|")
 DeleteDataFiles()
+```
+##Credentials file
+All fields are mandatory.
+```json
+{
+  "client_id" : "",
+  "client_secret" : "",
+  "refresh_token" : "",
+  "sftp_user" : "",
+  "sftp_pwd" : ""
+}
 ```
