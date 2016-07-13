@@ -6,7 +6,7 @@ library(SilverPopR)
 load_credentials("/Etnetera/credentials_silverpop.json")
 authorize_api()
 
-database_id <- "2119224"
+database_id <- "1234567890"
 event_date_start <- as.Date("2016-01-01")
 event_date_end <- as.Date("2016-06-30")
 events <- list("opens","clicks","sent")
