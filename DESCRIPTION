@@ -1,0 +1,10 @@
+Package: SilverPopR
+Title: Wrapper Around SilverPop API
+Version: 0.1
+Authors@R: person("Ales", "Pouzar", email = "ales.pouzar@gmail.com",
+                  role = c("aut", "cre"))
+Description: A R wrapper around SilverPop API. Supports RawRecipientDataExport and ExportList endpoints.
+Depends: R (>= 3.3.0)
+Imports: httr, RCurl, jsonlite, R.cache, XML
+License: GPL-3
+LazyData: true

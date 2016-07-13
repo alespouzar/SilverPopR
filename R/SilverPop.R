@@ -2,18 +2,23 @@ library(httr) # HTTP client
 library(RCurl) # Used for SFTP
 library(jsonlite) # Parsing credentials in JSON format
 library(R.cache) # Storing secrets in cache
-library(bitops)
 library(XML) # Building XML
 
 setCacheRootPath(path="~/.Rcache")
 oauth_endpoint <- "https://api3.ibmmarketingcloud.com/oauth/token"
 api_endpoint <- "https://api3.ibmmarketingcloud.com/XMLAPI"
 sftp_server <- "ftp://transfer3.silverpop.com"
-sftp_user <- ""
-sftp_pwd <- ""
+
+load_credentials <- function(keystore) {
+  client_id <<- fromJSON(keystore)$client_id
+  client_secret <<- fromJSON(keystore)$client_secret
+  refresh_token <<- fromJSON(keystore)$refresh_token
+  sftp_user <<- fromJSON(keystore)$sftp_user
+  saveCache(fromJSON(keystore)$sftp_pwd,key=list("sftp_pwd"))
+}
 
 # Obtain access token using user refresh token
-authorize_api <- function(client_id, client_secret, refresh_token) {
+authorize_api <- function() {
   
   response <- POST(oauth_endpoint,
                    body = list(grant_type = "refresh_token",
@@ -24,11 +29,6 @@ authorize_api <- function(client_id, client_secret, refresh_token) {
   access_token <- content(response)$access_token
   print(access_token)
   saveCache(access_token,key=list("access_token"))
-}
-
-authorize_sftp <- function(user,password) {
-  sftp_user <- user
-  sftp_pwd <- password
 }
 
 # POST Request to API
@@ -55,12 +55,12 @@ GetJobStatus <- function (job_id) {
 
 DataJob <- function(job_id) {
   
-  print("Waiting for SilverPop to finish the data job.")
+  message(sprintf("Waiting for SilverPop to finish data job %s.",job_id))
   
   repeat {
     status <- GetJobStatus(job_id)
     if (status == "COMPLETE") {
-      sprintf("Data job %s is complete.",job_id)
+      message(sprintf("Data job %s is complete.",job_id))
       break
     } else {
       print(status)
@@ -92,22 +92,35 @@ RawRecipientDataExport <- function(list_id, start_date, end_date, events) {
   newXMLTextNode(format(end_date, format="%m/%d/%Y"), parent = end)
   newXMLTextNode(list_id, parent = list)
   response <- SPost(xml)
-  job_id <- xpathApply(response,"/Envelope/Body/RESULT/MAILING/JOB_ID", xmlValue)
-  file_path <- xpathApply(response,"/Envelope/Body/RESULT/MAILING/FILE_PATH",xmlValue)
-  sprintf("Job ID %s created.", job_id)
-  DataJob(job_id)
-  GetDataFile(file_path)
+  
+  status <- xpathApply(response,"/Envelope/Body/RESULT/SUCCESS",xmlValue)
+  
+  if (status == "false") {
+    message("API error occurred.")
+    message(response)
+    quit()
+  } else {
+    job_id <- xpathApply(response,"/Envelope/Body/RESULT/MAILING/JOB_ID", xmlValue)
+    file_path <- xpathApply(response,"/Envelope/Body/RESULT/MAILING/FILE_PATH",xmlValue)
+    message(sprintf("Job ID %s created.", job_id))
+    DataJob(job_id)
+    GetDataFile(file_path) 
+  }
   
 }
 
 GetDataFile <- function(file_path) {
   path <- paste(sftp_server,"/download/",file_path,sep="")
   f = CFILE("temp.zip", mode="wb")
-  curlPerform(url = path, writedata = f@ref, noprogress=FALSE, userpwd=paste(sftp_user,sftp_pwd,sep=":"))
+  curlPerform(url = path, writedata = f@ref, noprogress=FALSE, userpwd=paste(sftp_user,loadCache(key=list("sftp_pwd")),sep=":"))
   close(f)
   csv_file <- unzip("temp.zip",list = TRUE)$Name
   unzip("temp.zip", exdir = "files")
-  sprintf("File %s successfully downloaded.",csv_file)
+  message(sprintf("File %s successfully downloaded.",csv_file))
   file.remove("temp.zip")
   return(paste("files",csv_file,sep = "/"))
+}
+
+DeleteDataFiles <- function() {
+  file.remove(list.files("files",full.names = TRUE))
 }
