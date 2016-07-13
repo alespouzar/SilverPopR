@@ -35,8 +35,8 @@ authorize_api <- function() {
 
 list_available_events <- function() {
   
-  events = list("sent","suppressed","opens","clicks","optins","optouts","forwards","attachments","conversions","clickstreams","hard_bounces","soft_bounces","reply_abuse","reply_coa","reply_other","mail_blocks","mails_restrictions")
-  print(events)
+  events = c("sent","suppressed","opens","clicks","optins","optouts","forwards","attachments","conversions","clickstreams","hard_bounces","soft_bounces","reply_abuse","reply_coa","reply_other","mail_blocks","mails_restrictions")
+  cat(events, sep="\n")
   
 }
 
