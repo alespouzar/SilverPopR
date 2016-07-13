@@ -27,3 +27,6 @@ All fields are mandatory.
   "sftp_pwd" : ""
 }
 ```
+
+##Supported API methods
+RawRecipientDataExport
