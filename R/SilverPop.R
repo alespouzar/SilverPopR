@@ -7,7 +7,7 @@ library(XML) # Building XML
 setCacheRootPath(path="~/.Rcache")
 oauth_endpoint <- "https://api3.ibmmarketingcloud.com/oauth/token"
 api_endpoint <- "https://api3.ibmmarketingcloud.com/XMLAPI"
-sftp_server <- "ftp://transfer3.silverpop.com"
+sftp_server <- "sftp://transfer3.silverpop.com"
 
 load_credentials <- function(keystore) {
   client_id <<- fromJSON(keystore)$client_id

@@ -29,4 +29,4 @@ All fields are mandatory.
 ```
 
 ##Supported API methods
-RawRecipientDataExport
+* RawRecipientDataExport
