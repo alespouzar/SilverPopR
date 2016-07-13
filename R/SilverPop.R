@@ -10,11 +10,13 @@ api_endpoint <- "https://api3.ibmmarketingcloud.com/XMLAPI"
 sftp_server <- "sftp://transfer3.silverpop.com"
 
 load_credentials <- function(keystore) {
+  
   client_id <<- fromJSON(keystore)$client_id
   client_secret <<- fromJSON(keystore)$client_secret
   refresh_token <<- fromJSON(keystore)$refresh_token
   sftp_user <<- fromJSON(keystore)$sftp_user
   saveCache(fromJSON(keystore)$sftp_pwd,key=list("sftp_pwd"))
+  
 }
 
 # Obtain access token using user refresh token
@@ -32,15 +34,19 @@ authorize_api <- function() {
 }
 
 list_available_events <- function() {
+  
   events = list("sent","suppressed","opens","clicks","optins","optouts","forwards","attachments","conversions","clickstreams","hard_bounces","soft_bounces","reply_abuse","reply_coa","reply_other","mail_blocks","mails_restrictions")
   print(events)
+  
 }
 
 # POST Request to API
 SPost <- function(body) {
+  
   access_token <- loadCache(key=list("access_token"))
   r <- POST(url = api_endpoint, body = as(body,"character"), encode = "raw", add_headers(Authorization = paste("Bearer",access_token,sep=" ")), content_type("text/xml"))
   return(xmlInternalTreeParse(content(r,as = "text")))
+  
 }
 
 # Get Job Status
@@ -115,6 +121,7 @@ RawRecipientDataExport <- function(list_id, start_date, end_date, events) {
 }
 
 GetDataFile <- function(file_path) {
+  
   path <- paste(sftp_server,"/download/",file_path,sep="")
   f = CFILE("temp.zip", mode="wb")
   curlPerform(url = path, writedata = f@ref, noprogress=FALSE, userpwd=paste(sftp_user,loadCache(key=list("sftp_pwd")),sep=":"))
@@ -124,8 +131,11 @@ GetDataFile <- function(file_path) {
   message(sprintf("File %s successfully downloaded.",csv_file))
   file.remove("temp.zip")
   return(paste("files",csv_file,sep = "/"))
+  
 }
 
 DeleteDataFiles <- function() {
+  
   file.remove(list.files("files",full.names = TRUE))
+  
 }
